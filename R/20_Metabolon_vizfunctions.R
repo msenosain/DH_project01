@@ -6,7 +6,7 @@ set_environment <- function(){
     library(ComplexHeatmap)
 }
 
-dh_heatmap <- function(dt, col_names){
+dh_heatmap <- function(dt, col_names, scale = TRUE){
 
     # HM annotations
     col_ha = HeatmapAnnotation(
@@ -26,9 +26,17 @@ dh_heatmap <- function(dt, col_names){
     # Get index for cols of interest
     idx <- which(colnames(dt) %in% col_names)
 
+    # Scaling
+    if(scale){
+        x <- scale(dt[,idx])
+        name_l <- "z-score"
+    } else {
+        x <- dt[,idx]
+        name_l <- "value"
+    }
     # Plot heatmap
-    print(Heatmap(scale(dt[,idx]), 
-        name = "z-score",
+    print(Heatmap(x, 
+        name = name_l,
         heatmap_legend_param = list(color_bar = "continuous"), 
         show_row_dend = T,
         show_column_dend = FALSE,
