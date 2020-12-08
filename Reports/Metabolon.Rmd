@@ -10,8 +10,8 @@ output:
 
 ```{r setup, include=FALSE}
 library(devtools)
-source_url('https://raw.githubusercontent.com/msenosain/DH_project01/main/R/20_Metabolon_vizfunctions.R')
-set_environment()
+#source_url('https://raw.githubusercontent.com/msenosain/DH_project01/main/R/20_Metabolon_vizfunctions.R')
+source('/Users/senosam/Documents/Repositories/Research/DH_project01/R/20_Metabolon_vizfunctions.R')
 ```
 
 # Load data
@@ -24,6 +24,12 @@ load('/Users/senosam/Documents/Massion_lab/Others/Dalton/data/compdata.RData')
 set.seed(194)
 suppressMessages(
   dh_heatmap(data_DH, col_names = c('OE', 'WT')))
+```
+
+```{r fig.width = 4, fig.height = 10}
+set.seed(194)
+suppressMessages(
+  dh_heatmap(data_DH, col_names = c('L2R'), scale = F))
 ```
 
 # Fold-change plot by subtype
