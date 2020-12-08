@@ -46,7 +46,9 @@ data_DH <- dh_comp(path = file.path(dh_path, 'MetabolonAllSubtypes.xlsx'),
                    name_ls = sheet_ls)
 
 # Reshaped data
-data_DH_rs <- reshape2::melt(data_DH, value.name = "value",  variable.name='condition')
+data_DH_rs <- data_DH
+data_DH_rs$L2R <- NULL
+data_DH_rs <- reshape2::melt(data_DH_rs, value.name = "value",  variable.name='condition')
 
 # Save data
 save(data_DH, data_DH_rs, file=file.path(dh_path, 'compdata.RData'))
