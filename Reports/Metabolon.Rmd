@@ -1,0 +1,38 @@
+---
+title: "Metabolon data summary"
+author: "Mafe Senosain"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        toc: true
+        toc_float: true
+---
+
+```{r setup, include=FALSE}
+source("/Users/senosam/Documents/Repositories/Research/DH_project01/R/20_Metabolon_vizfunctions.R")
+set_environment()
+```
+
+# Load data
+```{r, echo=FALSE}
+load('/Users/senosam/Documents/Massion_lab/Others/Dalton/data/compdata.RData')
+```
+
+# Summary Heatmap 
+```{r fig.width = 7, fig.height = 10}
+set.seed(194)
+suppressMessages(
+  dh_heatmap(data_DH, col_names = c('OE', 'WT')))
+```
+
+# Fold-change plot by subtype
+```{r fig.width = 10, fig.height = 5}
+for (i in unique(data_DH$subtype)){
+  n = 30
+  if(length(which(data_DH$subtype == i)) < n ) {
+    n = length(which(data_DH$subtype == i))
+  }
+  L2FC_barplot(data_DH, max_metabolites = n, msubtype = i)
+}
+```
+
