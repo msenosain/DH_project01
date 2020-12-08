@@ -10,7 +10,7 @@ dh_heatmap <- function(dt, col_names){
 
     # HM annotations
     col_ha = HeatmapAnnotation(
-    condition = c('OE', 'WT'),
+    condition = col_names,
     simple_anno_size = unit(0.5, "cm"),
     show_legend = FALSE,
     show_annotation_name = FALSE
