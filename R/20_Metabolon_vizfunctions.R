@@ -17,7 +17,7 @@ dh_heatmap <- function(dt, col_names, scale = TRUE){
     )
 
     row_ha = HeatmapAnnotation(
-        Subtype=dt$subtype,
+        Subtype=dt$Super_Pathway,
         simple_anno_size = unit(0.5, "cm"),
         which = 'row',
         show_annotation_name = FALSE
@@ -42,7 +42,7 @@ dh_heatmap <- function(dt, col_names, scale = TRUE){
         show_column_dend = FALSE,
         show_column_names = FALSE,
         show_row_names = FALSE,
-        row_split = dt$subtype,
+        row_split = dt$Super_Pathway,
         column_split = col_names,
         right_annotation = row_ha,
         top_annotation = col_ha, 
@@ -74,24 +74,24 @@ L2FC_barplot <- function(dt,
     colnames(dt)[which(colnames(dt) == state_col)] <- 'state'
 
     if(sum_subpathway){
-        plot_title <- paste0("Top", max_items,
-            " deregulated sub pathways: ", superpathway)
+        plot_title <- paste0("Top ", max_items,
+            " deregulated sub-pathways: ", superpathway)
         x_lab = 'Sub-pathway'
-        colnames(dt)[which(colnames(dt) == 'Sub_pathway')] <- 'item'
+        colnames(dt)[which(colnames(dt) == 'Sub_Pathway')] <- 'item'
+
     } else {
-        plot_title <- paste0("Top", max_items,
+        plot_title <- paste0("Top ", max_items,
             " deregulated metabolites: ", superpathway)
         x_lab = 'Metabolite'
         colnames(dt)[which(colnames(dt) == 'Metabolite')] <- 'item'
-        dt <- dt %>% 
-            filter(Super_Pathway==superpathway) %>%
-            arrange(desc(abs(L2R))) %>%
-            dplyr::slice(1:max_items)
     }
+    # Select top metabolites or subpathways per superpathway
+    dt <- dt %>% 
+        filter(Super_Pathway==superpathway) %>%
+        arrange(desc(abs(L2R))) %>%
+        dplyr::slice(1:max_items)
 
-    # Select top metabolites by subtype
-
-
+    
     print(ggplot(dt, aes(reorder(item, L2R), L2R)) +
             geom_col(aes(fill = state), width = 0.5, color = "black") +
             scale_size_manual(values = c(0, 1), guide = "none") +
