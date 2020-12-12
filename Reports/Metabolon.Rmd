@@ -10,36 +10,96 @@ output:
 
 ```{r setup, include=FALSE}
 library(devtools)
-#source_url('https://raw.githubusercontent.com/msenosain/DH_project01/main/R/20_Metabolon_vizfunctions.R')
 source('/Users/senosam/Documents/Repositories/Research/DH_project01/R/20_Metabolon_vizfunctions.R')
+set_environment()
 ```
 
 # Load data
 ```{r, echo=FALSE}
-load('/Users/senosam/Documents/Massion_lab/Others/Dalton/data/compdata.RData')
+load('/Users/senosam/Documents/Massion_lab/Others/Dalton/data/compdata2.RData')
 ```
 
-# Summary Heatmap 
+# Summary Heatmaps 
+
+## By Metabolites
 ```{r fig.width = 7, fig.height = 10}
 set.seed(194)
 suppressMessages(
-  dh_heatmap(data_DH, col_names = c('OE', 'WT')))
+  dh_heatmap(met_cells, col_names = c('A549_WT', 'A549_KO', 'BEAS2B_WT', 'BEAS2B_OE')))
 ```
 
-```{r fig.width = 4, fig.height = 10}
+## By Sub-pathway
+```{r fig.width = 7, fig.height = 7}
 set.seed(194)
 suppressMessages(
-  dh_heatmap(data_DH, col_names = c('L2R'), scale = F))
+  dh_heatmap(met_pth, col_names = c('A549_WT', 'A549_KO', 'BEAS2B_WT', 'BEAS2B_OE')))
 ```
 
-# Fold-change plot by subtype
+# A549 xCT KO vs A549 WT
+## Fold-change plot by metabolites
 ```{r fig.width = 10, fig.height = 5}
-for (i in unique(data_DH$subtype)){
+for (i in unique(met_cells$Super_Pathway)){
   n = 30
-  if(length(which(data_DH$subtype == i)) < n ) {
-    n = length(which(data_DH$subtype == i))
+  if(length(which(met_cells$Super_Pathway == i)) < n ) {
+    n = length(which(met_cells$Super_Pathway == i))
   }
-  L2FC_barplot(data_DH, max_metabolites = n, msubtype = i)
+  L2FC_barplot(met_cells, 
+               max_items = n, 
+               superpathway = i, 
+               state_col = 'A549_state', 
+               L2R_col = 'A549_L2R',
+               sum_subpathway = F)
 }
 ```
+
+## Fold-change plot by sub-pathway
+```{r fig.width = 10, fig.height = 5}
+for (i in unique(met_pth$Super_Pathway)){
+  n = 30
+  if(length(which(met_pth$Super_Pathway == i)) < n ) {
+    n = length(which(met_pth$Super_Pathway == i))
+  }
+  L2FC_barplot(met_pth, 
+               max_items = n, 
+               superpathway = i, 
+               state_col = 'A549_state', 
+               L2R_col = 'A549_L2R',
+               sum_subpathway = T)
+}
+```
+
+
+# BEAS2B xCT OE vs BEAS2B WT
+## Fold-change plot by metabolites
+```{r fig.width = 10, fig.height = 5}
+for (i in unique(met_cells$Super_Pathway)){
+  n = 30
+  if(length(which(met_cells$Super_Pathway == i)) < n ) {
+    n = length(which(met_cells$Super_Pathway == i))
+  }
+  L2FC_barplot(met_cells, 
+               max_items = n, 
+               superpathway = i, 
+               state_col = 'BEAS2B_state', 
+               L2R_col = 'BEAS2B_L2R',
+               sum_subpathway = F)
+}
+```
+
+## Fold-change plot by sub-pathway
+```{r fig.width = 10, fig.height = 5}
+for (i in unique(met_pth$Super_Pathway)){
+  n = 30
+  if(length(which(met_pth$Super_Pathway == i)) < n ) {
+    n = length(which(met_pth$Super_Pathway == i))
+  }
+  L2FC_barplot(met_pth, 
+               max_items = n, 
+               superpathway = i, 
+               state_col = 'BEAS2B_state', 
+               L2R_col = 'BEAS2B_L2R',
+               sum_subpathway = T)
+}
+```
+
 
