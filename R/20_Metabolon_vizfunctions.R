@@ -51,40 +51,58 @@ dh_heatmap <- function(dt, col_names, scale = TRUE){
 
 
 
-L2FC_barplot <- function(dt, max_metabolites = 20, msubtype) {
+L2FC_barplot <- function(dt, 
+    max_items = 20, # metabolites or subpathways
+    superpathway, 
+    state_col, 
+    L2R_col,
+    sum_subpathway = FALSE) {
 
     # Color function
-    color_levels <- function(dt) {
+    color_levels <- function(dt, state_col) {
         colors <- c()
-        if (any(dt$state == "DN")) {
+        if (any(dt[,state_col] == "DN")) {
           colors <- c(colors, "lightblue")
         }
-        if (any(dt$state == "UP")) {
+        if (any(dt[,state_col] == "UP")) {
           colors <- c(colors, "#DC143C")
         }
         colors
     }
 
-    # Select top metabolites by subtype
-    dt <- dt %>% 
-            filter(subtype==msubtype) %>%
-            arrange(desc(abs(L2R))) %>%
-            dplyr::slice(1:max_metabolites)
+    colnames(dt)[which(colnames(dt) == L2R_col)] <- 'L2R'
+    colnames(dt)[which(colnames(dt) == state_col)] <- 'state'
 
-    print(ggplot(dt, aes(reorder(metabolite, L2R), L2R)) +
+    if(sum_subpathway){
+        plot_title <- paste0("Top", max_items,
+            " deregulated sub pathways: ", superpathway)
+        x_lab = 'Sub-pathway'
+        colnames(dt)[which(colnames(dt) == 'Sub_pathway')] <- 'item'
+    } else {
+        plot_title <- paste0("Top", max_items,
+            " deregulated metabolites: ", superpathway)
+        x_lab = 'Metabolite'
+        colnames(dt)[which(colnames(dt) == 'Metabolite')] <- 'item'
+        dt <- dt %>% 
+            filter(Super_Pathway==superpathway) %>%
+            arrange(desc(abs(L2R))) %>%
+            dplyr::slice(1:max_items)
+    }
+
+    # Select top metabolites by subtype
+
+
+    print(ggplot(dt, aes(reorder(item, L2R), L2R)) +
             geom_col(aes(fill = state), width = 0.5, color = "black") +
             scale_size_manual(values = c(0, 1), guide = "none") +
             coord_flip() +
             labs(
-                x = 'Metabolite', 
+                x = x_lab, 
                 y = "Log2 fold-change",
-                title = paste0("Top ", max_metabolites, 
-                    " deregulated metabolites: ", msubtype)
+                title = plot_title
             ) +
             theme_bw() +
             scale_fill_manual(values = color_levels(dt))
     )
 
 }
-
-
