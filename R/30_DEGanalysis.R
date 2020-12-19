@@ -1,5 +1,5 @@
 rnaseq_counts <- read.delim("/Users/senosam/Documents/Massion_lab/Others/Dalton/data/RNAseq/BEAS2B/RnaSeq_Dalton4676.count.txt")    
-ref = data.frame(cbind(sample_ID = c("OverExpression1", "OverExpression2", "OverExpression3"), 
+ref = data.frame(cbind(sample_ID = c("OverExpression1", "OverExpression2", "OverExpression3", "WT1", "WT2", "WT3"), 
         Batch = c(1,2,3,1,2,3), 
         condition = c('OE', 'OE', 'OE', 'WT', 'WT', 'WT')))
 
@@ -53,13 +53,35 @@ preprocess_rna <- function(rna_all,
     vsd <- vst(dds)
 
 
-    pbatch_bf <- plotPCA(vsd, "Batch") + labs(fill = "Batch") + ggtitle("Batch raw")
+    pbatch_bf <- plotPCA(vsd, intgroup=c('condition', 'Batch'), returnData = TRUE)
+    #pbatch_bf <- plotPCA(vsd, "condition") + labs(fill = "condition") + ggtitle("Batch raw")
+    pbatch_bf$condition <- factor(pbatch_bf$condition)
+    pbatch_bf$Batch <- factor(pbatch_bf$Batch)
+    percentVar <- round(100 * attr(pbatch_bf, "percentVar")) 
+    pbatch_bf <- ggplot(pbatch_bf, aes(x = PC1, y = PC2, color = condition, shape = Batch)) + 
+      geom_point(size =3, aes(fill=condition)) + 
+      scale_shape_manual(values=c(21,22,23)) + 
+      xlab(paste0("PC1: ", percentVar[1], "% variance")) + 
+      ylab(paste0("PC2: ", percentVar[2], "% variance")) + 
+      ggtitle("PCA before batch correction") +
+      labs(color='condition', shape='Batch')
     
     # Remove batch effect
     if(correct_batch){
         assay(vsd) <- limma::removeBatchEffect(assay(vsd), 
             batch=vsd$Batch)
-        pbatch_af <- plotPCA(vsd, "Batch") + labs(fill = "Batch") + ggtitle("Batch after BE removal")
+        pbatch_af <- plotPCA(vsd, intgroup=c('condition', 'Batch'), returnData = TRUE)
+        #pbatch_af <- plotPCA(vsd, "condition") + labs(fill = "condition") + ggtitle("Batch after BE removal")
+        pbatch_af$condition <- factor(pbatch_af$condition)
+        pbatch_af$Batch <- factor(pbatch_af$Batch)
+        percentVar <- round(100 * attr(pbatch_af, "percentVar")) 
+        pbatch_af <- ggplot(pbatch_af, aes(x = PC1, y = PC2, color = condition, shape = Batch)) + 
+          geom_point(size =3, aes(fill=condition)) + 
+          scale_shape_manual(values=c(21,22,23)) + 
+          xlab(paste0("PC1: ", percentVar[1], "% variance")) + 
+          ylab(paste0("PC2: ", percentVar[2], "% variance")) + 
+          ggtitle("PCA after batch correction") +
+          labs(color='condition', shape='Batch')
     }
     vsd_mat <- assay(vsd)
 
