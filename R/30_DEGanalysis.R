@@ -21,6 +21,7 @@ environment_set <- function(){
     library(ggplot2)
     library(org.Hs.eg.db)
     library(clusterProfiler)
+    library(biomaRt)
     # Check BiocManager::valid()
 }
 
@@ -99,9 +100,8 @@ DE_analysis <- function(ls_preprocessed,
     NewCondition_df, # condition label into ref
     cond_nm, # gene or column name
     two_levels=c('WT','OE'), # high low, dead alive...
-    reference, # low, alive
-    correct_gender=FALSE,
-    extremes_only=TRUE
+    reference,
+    batch_cor = T
     ){
 
     # Unlist
@@ -114,38 +114,37 @@ DE_analysis <- function(ls_preprocessed,
 
     
     if(RefBased){
-        meta_data <- ref %>% dplyr::select(sample_ID, all_of(cond_nm))
+        meta_data <- ref
         meta_data$sample_ID <- as.character(meta_data$sample_ID)
-        ref$sample_ID <- as.character(ref$sample_ID)
-        meta_data <- inner_join(ref, meta_data, by='sample_ID')
         names(meta_data)[names(meta_data) == cond_nm] <- 'Condition'
         meta_data <- meta_data %>% filter(Condition %in% two_levels)
     }
 
     if(NewCondition){
         meta_data <- NewCondition_df
-        print(meta_data)
         names(meta_data)[names(meta_data) == cond_nm] <- 'Condition'
-        print(meta_data)
         meta_data$Condition <- as.character(meta_data$Condition)
-        print(meta_data)
         meta_data <- meta_data %>% filter(Condition %in% two_levels)
-        print(meta_data)
     }
 
-    message('Labeling done')
 
-    counts_all <- as.matrix(counts_all[,meta_data$Vantage_ID])
+    counts_all <- as.matrix(counts_all[,meta_data$sample_ID])
     ref <- ref %>% filter(sample_ID %in% meta_data$sample_ID)
-    vsd_mat <- vsd_mat[,meta_data$Vantage_ID]
+    vsd_mat <- vsd_mat[,meta_data$sample_ID]
 
     message('Filtering done')
 
-    dds <- DESeqDataSetFromMatrix(
-      countData = counts_all,
-      colData = meta_data,
-      design = ~Batch + Condition, tidy = F)
-
+    if(batch_cor) {
+        dds <- DESeqDataSetFromMatrix(
+        countData = counts_all,
+        colData = meta_data,
+        design = ~Batch + Condition, tidy = F)
+    } else{
+        dds <- DESeqDataSetFromMatrix(
+        countData = counts_all,
+        colData = meta_data,
+        design = ~Condition, tidy = F)
+    }
     message('Design done')
 
     dds <- estimateSizeFactors(dds)
